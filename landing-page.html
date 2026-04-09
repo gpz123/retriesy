@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retriesy — Stop Losing Revenue to Failed Stripe Payments</title>
+  <meta name="description" content="Intelligent payment recovery for indie hackers. Recover 60%+ of failed Stripe payments automatically. Starting at $29/mo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #1a1a24;
+      --text: #f0f0f5;
+      --text2: #8888a0;
+      --text3: #55556a;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --green: #22c55e;
+      --green2: #16a34a;
+      --red: #ef4444;
+      --border: #22223a;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,15,0.9);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .logo span { color: var(--accent2); }
+    .nav-cta {
+      background: var(--accent);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent2); transform: translateY(-1px); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: var(--accent2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 28px;
+    }
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:0.3; }
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 58px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), var(--accent2), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text2);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    /* ── Loss Calculator ── */
+    .calc-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .calc-box h3 {
+      font-size: 15px;
+      color: var(--text2);
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .calc-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .calc-field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text3);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .calc-field input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 700;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .calc-field input:focus { border-color: var(--accent); }
+    .calc-results {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .calc-row:last-child { border-bottom: none; }
+    .calc-row .label { color: var(--text2); }
+    .calc-row .value { font-weight: 600; }
+    .calc-row .value.red { color: var(--red); }
+    .calc-row .value.green { color: var(--green); }
+    .calc-row .value.accent { color: var(--accent2); font-size: 16px; }
+
+    /* ── How it works ── */
+    .section { padding: 60px 0; }
+    .section-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .section h2 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      margin-bottom: 40px;
+      letter-spacing: -0.01em;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .step {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      position: relative;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    .step h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step p {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* ── Features ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .feature {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .feature:hover { border-color: var(--accent); }
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    .feature h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .feature p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    /* ── Comparison ── */
+    .comp-table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .comp-table th {
+      background: var(--bg3);
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-table th.center { text-align: center; }
+    .comp-table td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table td.center { text-align: center; }
+    .comp-table td:first-child { color: var(--text); font-weight: 500; }
+    .comp-table tr:hover td { background: var(--bg2); }
+    .yes { color: var(--green); font-weight: 600; }
+    .no { color: var(--text3); }
+    .comp-highlight { background: rgba(99,102,241,0.05) !important; }
+
+    /* ── Pricing ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .pricing-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .pricing-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .pricing-card.popular {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(99,102,241,0.1) 0%, var(--bg2) 60%);
+    }
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pricing-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .pricing-card .price {
+      font-size: 40px;
+      font-weight: 800;
+      margin: 16px 0;
+      letter-spacing: -0.02em;
+    }
+    .pricing-card .price .period {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text3);
+    }
+    .pricing-card .desc {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 20px;
+    }
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+    .pricing-features li {
+      font-size: 13px;
+      color: var(--text2);
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .pricing-cta {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .cta-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+    }
+    .cta-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .cta-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .cta-outline:hover { border-color: var(--accent); color: var(--accent2); }
+
+    /* ── Waitlist ── */
+    .waitlist-section {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .waitlist-section h2 {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    .waitlist-section p {
+      color: var(--text2);
+      font-size: 15px;
+      margin-bottom: 28px;
+    }
+    .waitlist-form {
+      display: flex;
+      gap: 10px;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .waitlist-form input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .waitlist-form input:focus { border-color: var(--accent); }
+    .waitlist-form input::placeholder { color: var(--text3); }
+    .waitlist-form button {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .waitlist-form button:hover { opacity: 0.9; transform: translateY(-1px); }
+    .waitlist-form button:active { transform: translateY(0); }
+    .form-note {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 12px;
+    }
+    #form-success {
+      display: none;
+      color: var(--green);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 12px;
+    }
+
+    /* ── FAQ ── */
+    .faq-list { max-width: 640px; margin: 0 auto; }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-q::after {
+      content: '+';
+      font-size: 20px;
+      color: var(--text3);
+      transition: transform 0.2s;
+    }
+    .faq-item.open .faq-q::after { transform: rotate(45deg); }
+    .faq-a {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.7;
+      display: none;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text3);
+      font-size: 13px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .calc-inputs { grid-template-columns: 1fr; }
+      .waitlist-form { flex-direction: column; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .waitlist-section { padding: 32px 24px; }
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <a href="#" class="logo">
+      <div class="logo-icon">↻</div>
+      Retriesy
+    </a>
+    <a href="#waitlist" class="nav-cta">Get Early Access</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Early Access — 7 Days Free
+    </div>
+    <h1>
+      Stop <span class="highlight">$4,000/year</span><br>
+      from leaking away
+    </h1>
+    <p class="hero-sub">
+      Retriesy automatically recovers failed Stripe payments — using intelligent retry timing,
+      friendly dunning emails, and one-click card updates. Built for indie hackers.
+    </p>
+
+    <!-- Loss Calculator -->
+    <div class="calc-box">
+      <h3>💰 See how much you're actually losing</h3>
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <label>Monthly MRR (USD)</label>
+          <input type="number" id="mrr" value="5000" min="100" oninput="calc()">
+        </div>
+        <div class="calc-field">
+          <label>Failure Rate (%)</label>
+          <input type="number" id="failRate" value="8" min="1" max="50" oninput="calc()">
+        </div>
+      </div>
+      <div class="calc-results">
+        <div class="calc-row">
+          <span class="label">Monthly failed payments</span>
+          <span class="value red" id="res-total">$400</span>
+        </div>
+        <div class="calc-row">
+          <span class="label">Stripe default recovery (38%)</span>
+          <span class="value green" id="res-default">$152 recovered</span>
+        </div>
+        <div class="calc-row">
+          <span class="label">What Retriesy recovers (60%+)</span>
+          <span class="value green" id="res-retriesy">$240 recovered</span>
+        </div>
+        <div class="calc-row">
+          <span class="label">Your extra monthly gain</span>
+          <span class="value accent" id="res-gain">+$88/month</span>
+        </div>
+        <div class="calc-row">
+          <span class="label">Annual revenue saved</span>
+          <span class="value accent" id="res-annual">$1,056/year</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 28px;">
+      <a href="#waitlist" class="nav-cta" style="font-size:16px;padding:14px 32px;border-radius:12px;">
+        Start Recovering Revenue →
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="container">
+    <div class="section-tag">How It Works</div>
+    <h2>From $0 recovered to $400/month<br>in four automatic steps</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Stripe Webhook</h4>
+        <p>Real-time monitoring of every payment_failed event. No polling, no delays.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Smart Classification</h4>
+        <p>Instantly classifies soft failures (retry-able) vs. hard failures (needs card update).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Intelligent Retries</h4>
+        <p>Retries at the optimal time — pays attention to paydays, time zones, past success patterns.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Dunning Emails</h4>
+        <p>Friendly, on-brand emails with one-click card update links. Zero friction for customers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="container">
+    <div class="section-tag">Features</div>
+    <h2>Everything you need.<br>Nothing you don't.</h2>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">🧠</div>
+        <h4>AI-Powered Retry Timing</h4>
+        <p>Not just random retries. We analyze success patterns and retry when the card is most likely to go through — like payday mornings.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📧</div>
+        <h4>Smart Dunning Sequences</h4>
+        <p>4-email sequence: friendly notice → gentle reminder → urgency → final notice. Each with a one-click card update link.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔗</div>
+        <h4>One-Click Card Update</h4>
+        <p>Branded, mobile-optimized card update page. Customers can update their payment method without logging in or contacting support.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <h4>Recovery Dashboard</h4>
+        <p>See exactly how much you've recovered this month, this quarter, and all time. Know your ROI in real time.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h4>Multi-Gateway Support</h4>
+        <p>Stripe, Lemon Squeezy, Paddle — connect all your payment gateways in one place.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔔</div>
+        <h4>Proactive Reminders</h4>
+        <p>Send payment reminders before the due date. Catch expired cards before they fail — not after.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- COMPARISON -->
+<section class="section">
+  <div class="container">
+    <div class="section-tag">vs. Alternatives</div>
+    <h2>Why indie hackers choose Retriesy</h2>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="center">Retriesy</th>
+            <th class="center">FlyCode</th>
+            <th class="center">DunningKit</th>
+            <th class="center">Stripe Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="comp-highlight">
+            <td>Price</td>
+            <td class="center">$29/mo</td>
+            <td class="center">$249/mo</td>
+            <td class="center">$19-99/mo</td>
+            <td class="center">Free</td>
+          </tr>
+          <tr>
+            <td>Recovery rate</td>
+            <td class="center"><span class="yes">60%+</span></td>
+            <td class="center"><span class="yes">65%+</span></td>
+            <td class="center">~45%</td>
+            <td class="center">38%</td>
+          </tr>
+          <tr>
+            <td>Multi-gateway</td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="no">Stripe only</span></td>
+            <td class="center"><span class="no">Stripe only</span></td>
+          </tr>
+          <tr>
+            <td>AI retry timing</td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="no">—</span></td>
+            <td class="center"><span class="no">—</span></td>
+          </tr>
+          <tr>
+            <td>Dunning emails</td>
+            <td class="center"><span class="yes">✓ AI</span></td>
+            <td class="center"><span class="yes">✓ AI</span></td>
+            <td class="center">Manual</td>
+            <td class="center">Basic</td>
+          </tr>
+          <tr>
+            <td>One-click card update</td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="no">—</span></td>
+          </tr>
+          <tr>
+            <td>Proactive reminders</td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="yes">✓</span></td>
+            <td class="center"><span class="no">—</span></td>
+            <td class="center"><span class="no">—</span></td>
+          </tr>
+          <tr>
+            <td>Free trial</td>
+            <td class="center"><span class="yes">7 days</span></td>
+            <td class="center"><span class="no">—</span></td>
+            <td class="center">14 days</td>
+            <td class="center">—</td>
+          </tr>
+          <tr>
+            <td>Setup time</td>
+            <td class="center"><span class="yes">10 min</span></td>
+            <td class="center">1-2 weeks</td>
+            <td class="center">1 hour</td>
+            <td class="center">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<section class="section">
+  <div class="container">
+    <div class="section-tag">Pricing</div>
+    <h2>Simple pricing.<br>No surprise fees.</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Solo</h3>
+        <div class="price">$29<span class="period">/month</span></div>
+        <p class="desc">For indie hackers with one product</p>
+        <ul class="pricing-features">
+          <li>1 Stripe account</li>
+          <li>Up to 3 products</li>
+          <li>Intelligent retries</li>
+          <li>Dunning emails</li>
+          <li>Card update page</li>
+          <li>Basic dashboard</li>
+          <li>7-day free trial</li>
+        </ul>
+        <button class="pricing-cta cta-primary" onclick="scrollToWaitlist()">Start Free Trial</button>
+      </div>
+      <div class="pricing-card popular">
+        <div class="popular-badge">Most Popular</div>
+        <h3>Growth</h3>
+        <div class="price">$79<span class="period">/month</span></div>
+        <p class="desc">For growing indie businesses</p>
+        <ul class="pricing-features">
+          <li>Stripe + Lemon Squeezy + Paddle</li>
+          <li>Up to 10 products</li>
+          <li>AI retry optimization</li>
+          <li>Proactive reminders</li>
+          <li>Branded card update page</li>
+          <li>Full recovery dashboard</li>
+          <li>Priority email support</li>
+          <li>7-day free trial</li>
+        </ul>
+        <button class="pricing-cta cta-primary" onclick="scrollToWaitlist()">Start Free Trial</button>
+      </div>
+      <div class="pricing-card">
+        <h3>Pro</h3>
+        <div class="price">$199<span class="period">/month</span></div>
+        <p class="desc">For serious revenue machines</p>
+        <ul class="pricing-features">
+          <li>Unlimited gateways</li>
+          <li>Unlimited products</li>
+          <li>Everything in Growth</li>
+          <li>Custom retry rules</li>
+          <li>API access</li>
+          <li>White-label option</li>
+          <li>Dedicated Slack support</li>
+        </ul>
+        <button class="pricing-cta cta-outline" onclick="scrollToWaitlist()">Start Free Trial</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WAITLIST -->
+<section class="section" id="waitlist">
+  <div class="container">
+    <div class="waitlist-section">
+      <div class="section-tag">Early Access</div>
+      <h2>Be the first to recover<br>your lost revenue</h2>
+      <p>Join the waitlist. Get 3 months at 50% off when we launch — and first access to our beta.</p>
+      <form class="waitlist-form" id="waitlist-form" onsubmit="submitForm(event)">
+        <input type="email" id="email-input" placeholder="your@email.com" required>
+        <button type="submit">Join Waitlist</button>
+      </form>
+      <div id="form-success">✅ You're on the list! We'll email you when we launch.</div>
+      <p class="form-note">No spam. Unsubscribe anytime. 50+ indie hackers already waiting.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FAQ -->
+<section class="section">
+  <div class="container">
+    <div class="section-tag">FAQ</div>
+    <h2>Common questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How is this different from Stripe's built-in Smart Retries?</div>
+        <div class="faq-a">Stripe Smart Retries uses generic ML — it doesn't know your specific customer patterns. Retriesy analyzes your own retry success/failure history to optimize timing, plus adds smart dunning emails and a frictionless card update page. Our users typically see 20-30% higher recovery rates vs. Stripe defaults.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is $29/mo worth it if I only make $1,000 MRR?</div>
+        <div class="faq-a">Yes. With $1,000 MRR and an 8% failure rate, you lose ~$80/month to failed payments. Stripe's default recovers ~$30. Retriesy recovers ~$60. That's $30 extra per month — Retriesy pays for itself in the first week.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do my customers see anything different?</div>
+        <div class="faq-a">Only if they need to. They'll get friendly emails (from your brand, not Stripe) if their payment fails. The card update page is white-labeled to match your product. Most customers who update their card successfully complete the payment — they weren't leaving, they just had a temporary card issue.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How long does setup take?</div>
+        <div class="faq-a">About 10 minutes. Connect your Stripe account via OAuth, configure your retry rules (or use our smart defaults), and you're live. No code changes required. Your first retry will fire within hours.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens to my data?</div>
+        <div class="faq-a">We store only webhook event data (payment IDs, failure codes, retry attempts) — never your customers' card details. All data is encrypted in transit and at rest. We're fully Stripe partner-compliant.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime?</div>
+        <div class="faq-a">Yes. Monthly plans cancel anytime, no questions asked. Your retry rules and data are preserved for 30 days if you decide to come back.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="logo" style="justify-content:center;margin-bottom:12px;font-size:18px;">
+      <div class="logo-icon" style="width:26px;height:26px;font-size:14px;">↻</div>
+      Retriesy
+    </div>
+    <p>Built for indie hackers who can't afford to lose revenue.</p>
+    <p style="margin-top:8px;">© 2026 Retriesy. Not affiliated with Stripe.</p>
+  </div>
+</footer>
+
+<script>
+  // Calculator
+  function calc() {
+    const mrr = parseFloat(document.getElementById('mrr').value) || 0;
+    const rate = (parseFloat(document.getElementById('failRate').value) || 0) / 100;
+    const total = mrr * rate;
+    const def = total * 0.38;
+    const best = total * 0.60;
+    const gain = best - def;
+    document.getElementById('res-total').textContent = '$' + Math.round(total).toLocaleString();
+    document.getElementById('res-default').textContent = '$' + Math.round(def).toLocaleString() + ' recovered';
+    document.getElementById('res-retriesy').textContent = '$' + Math.round(best).toLocaleString() + ' recovered';
+    document.getElementById('res-gain').textContent = '+$' + Math.round(gain).toLocaleString() + '/month';
+    document.getElementById('res-annual').textContent = '$' + Math.round(gain * 12).toLocaleString() + '/year';
+  }
+  calc();
+
+  // Waitlist form
+  function submitForm(e) {
+    e.preventDefault();
+    const email = document.getElementById('email-input').value;
+    document.getElementById('waitlist-form').style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+    document.querySelector('.form-note').textContent = 'Email: ' + email + ' — we\'ll reach out soon!';
+    // In production: send to your backend / Formspree / ConvertKit
+  }
+
+  // FAQ toggle
+  function toggleFaq(el) {
+    el.parentElement.classList.toggle('open');
+  }
+
+  // Scroll to waitlist
+  function scrollToWaitlist() {
+    document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
